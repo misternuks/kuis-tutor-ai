@@ -1,0 +1,6 @@
+<div class="card">
+  <%= select_tag 'course', options_from_collection_for_select(@courses, 'id', 'name'), prompt: 'Select a Course', id: 'courseSelect', onchange: 'populateUnits()' %>
+  <%= select_tag 'unit', '', prompt: 'Select a Unit', id: 'unitSelect', onchange: 'populateThemes()' %>
+  <%= select_tag 'subtheme', '', prompt: 'Select a Subtheme', id: 'subthemeSelect' %>
+  <%= button_tag 'Go to Chat', onclick: 'goToChat()' %>
+</div>
