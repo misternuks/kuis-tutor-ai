@@ -1,2 +1,81 @@
-<h1>Pages#home</h1>
-<p>Find me in app/views/pages/home.html.erb</p>
+<div class="container">
+  <h1>Welcome to KUIS TutorAI</h1>
+  <h2>Your 24/7 Study Buddy</h2>
+  <p>This web application is designed to assist KUIS students in understanding their courses better. Simply select your course, unit, and theme/lesson to get personalized tutoring from our AI.</p>
+  <p><strong>Instructions:</strong></p>
+  <ol>
+    <li>Select your course from the first dropdown.</li>
+    <li>Select the unit related to your course.</li>
+    <li>Choose the theme or lesson you're interested in.</li>
+    <li>Click "Go to Chat" to start your personalized tutoring session.</li>
+  </ol>
+  <div class="card">
+    <select id="courseSelect" onchange="populateUnits()"><option value="Media literacy">Media literacy</option><option value=""></option></select>
+    <select id="unitSelect" onchange="populateThemes()"><option value=""></option><option value=" AI"> AI</option></select>
+    <select id="subthemeSelect"><option value=""></option></select>
+    <button onclick="goToChat()">Go to Chat</button>
+  </div>
+  <p class="note">This AI tutor is designed to supplement, not replace, traditional educational resources. Always consult your instructor for personalized guidance.</p>
+</div>
+<script>
+  let courses = {};
+
+  async function loadCourses() {
+      try {
+          const response = await fetch('courses.csv');
+          const text = await response.text();
+          const lines = text.split('\n').slice(1);
+          lines.forEach(line => {
+              const [course, unit, theme, ...textParts] = line.split(',');
+              const text = textParts.join(',').replace(/<br\/>/g, '\n');
+              if (!courses[course]) courses[course] = {};
+              if (!courses[course][unit]) courses[course][unit] = {};
+              courses[course][unit][theme] = text;
+          });
+          populateCourses();
+      } catch (error) {
+          alert(`An error occurred while loading courses: ${error.message}`);
+      }
+  }
+
+  function populateCourses() {
+      const courseSelect = document.getElementById('courseSelect');
+      courseSelect.innerHTML = Object.keys(courses).map(course => `<option value="${course}">${course}</option>`).join('');
+      populateUnits();
+  }
+
+  function populateUnits() {
+      const selectedCourse = document.getElementById('courseSelect').value;
+      const unitSelect = document.getElementById('unitSelect');
+      unitSelect.innerHTML = Object.keys(courses[selectedCourse] || {}).map(unit => `<option value="${unit}">${unit}</option>`).join('');
+      populateThemes();
+  }
+
+  function populateThemes() {
+      const selectedCourse = document.getElementById('courseSelect').value;
+      const selectedUnit = document.getElementById('unitSelect').value;
+      const subthemeSelect = document.getElementById('subthemeSelect');
+      subthemeSelect.innerHTML = Object.keys((courses[selectedCourse] || {})[selectedUnit] || {}).map(theme => `<option value="${theme}">${theme}</option>`).join('');
+  }
+
+  function goToChat() {
+      const course = document.getElementById("courseSelect").value;
+      const unit = document.getElementById("unitSelect").value;
+      const subtheme = document.getElementById("subthemeSelect").value;
+
+      if (!course || !unit || !subtheme) {
+          alert('Please select a course, unit, and subtheme.');
+          return;
+      }
+
+      // Store the selected values in sessionStorage
+      sessionStorage.setItem('selectedCourse', course);
+      sessionStorage.setItem('selectedUnit', unit);
+      sessionStorage.setItem('selectedSubtheme', subtheme);
+
+      // Navigate to the chat page
+      window.location.href = 'chat.html';
+  }
+
+  window.onload = loadCourses;
+</script>
